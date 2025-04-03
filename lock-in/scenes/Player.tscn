@@ -1,4 +1,4 @@
-[gd_scene load_steps=67 format=3 uid="uid://c41hrmehx6ibf"]
+[gd_scene load_steps=68 format=3 uid="uid://c41hrmehx6ibf"]
 
 [ext_resource type="Texture2D" uid="uid://bsu8h1o3qy7bb" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_Attack2NoMovement.png" id="1_mdl7e"]
 [ext_resource type="Texture2D" uid="uid://b0wss1gntlt4c" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_Idle.png" id="1_p0vlq"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://tglcvouvl03p" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_TurnAround.png" id="6_70d11"]
 [ext_resource type="Texture2D" uid="uid://bo7o3lk1b1cvj" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_Roll.png" id="7_cw2d6"]
 [ext_resource type="Texture2D" uid="uid://mnsg0on4eim2" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_Death.png" id="7_khinc"]
+[ext_resource type="Script" uid="uid://c7kai7gbd86y4" path="res://addons/godot_rl_agents/controller/ai_controller_2d.gd" id="9_bruh7"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o4126"]
 atlas = ExtResource("1_mdl7e")
@@ -464,8 +465,12 @@ scale = Vector2(0.191864, 0.191864)
 [node name="hitarea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="hitarea"]
-position = Vector2(17, -21)
+position = Vector2(1, -16)
 shape = SubResource("CircleShape2D_khinc")
 debug_color = Color(0.988975, 0, 0.295862, 0.42)
+
+[node name="AIController2D" type="Node2D" parent="."]
+script = ExtResource("9_bruh7")
+metadata/_custom_type_script = "uid://c7kai7gbd86y4"
 
 [connection signal="body_entered" from="hitarea" to="." method="_on_hitarea_body_entered"]

@@ -34,7 +34,7 @@ func _physics_process(delta: float) -> void:
 	# Get movement input
 	if is_dodging:
 		$".".collision_layer = 2
-		$".".collision_mask = 2
+		$".".collision_mask = 4
 	else:
 		$".".collision_layer = 1
 		$".".collision_mask = 1
