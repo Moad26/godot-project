@@ -1,4 +1,5 @@
 extends CharacterBody2D
+class_name AIPlayer
 
 const SPEED = 100.0 #300
 const JUMP_VELOCITY = -400.0
@@ -14,6 +15,7 @@ const DODGE_INVULNERABILITY_DURATION = 0.5
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_hitbox: Area2D = $hitarea
 @onready var health_bar: ProgressBar = $HealthBar
+@onready var ai_controller: AIController2D = $AIController2D
 
 var is_attacking := false
 var is_dodging := false
@@ -26,6 +28,7 @@ func _ready():
 	health_bar.max_value = MAX_HEALTH
 	health_bar.value = current_health
 	attack_hitbox.monitoring = false
+	ai_controller.init(self)
 
 func _physics_process(delta: float) -> void:
 	if is_dodging:
@@ -62,8 +65,7 @@ func _physics_process(delta: float) -> void:
 			animated_sprite.play("Idle")
 			velocity.x = move_toward(velocity.x, 0, SPEED)
 		else:
-			animated_sprite.play("Run") 
-			velocity.x = direction * SPEED
+			start_run(direction)
 
 	# Attack logic
 	if Input.is_action_just_pressed("p2_attack") and not is_attacking and not is_dodging:
@@ -71,21 +73,30 @@ func _physics_process(delta: float) -> void:
 
 	# Dodge/Roll logic
 	if Input.is_action_just_pressed("p2_roll") and not is_dodging and not is_attacking and can_dodge:
-		is_dodging = true
-		can_dodge = false
-		velocity.x = dodge_direction * DODGE_SPEED
-		velocity.y = 0  # Optional: disable gravity during dodge
-		animated_sprite.play("roll") 
-		
-		# Wait for dodge to complete
-		await get_tree().create_timer(DODGE_DURATION).timeout
-		is_dodging = false
-		
-		# Start cooldown
-		await get_tree().create_timer(DODGE_COOLDOWN).timeout
-		can_dodge = true
+		start_dodge()
 
 	move_and_slide()
+
+func start_run(direction):
+	animated_sprite.play("Run") 
+	velocity.x = direction * SPEED
+	
+func start_dodge():
+	is_dodging = true
+	can_dodge = false
+	velocity.x = dodge_direction * DODGE_SPEED
+	velocity.y = 0  # Optional: disable gravity during dodge
+	animated_sprite.play("roll") 
+	
+	# Wait for dodge to complete
+	await get_tree().create_timer(DODGE_DURATION).timeout
+	is_dodging = false
+	
+	# Start cooldown
+	await get_tree().create_timer(DODGE_COOLDOWN).timeout
+	can_dodge = true
+	
+
 func start_attack():
 	is_attacking = true
 	velocity.x = 0
