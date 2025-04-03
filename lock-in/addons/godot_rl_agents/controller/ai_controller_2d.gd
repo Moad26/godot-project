@@ -5,6 +5,8 @@ class_name AIController2D
 var player: AIPlayer
 var boss: Node2D
 var move: float
+var attack := false
+var dodge := false
 
 
 func init(player_node: AIPlayer):
@@ -32,9 +34,9 @@ func get_action_space() -> Dictionary:
 func set_action(action):
 	move = action["move"][0]
 	if action["attack"][0] > 0.5:
-		player.start_attack()
+		attack = true
 	if action["dodge"][0] > 0.5:
-		player.start_dodge()
+		dodge = true
 
 func process_movement(current_velocity: Vector2, delta: float) -> Vector2:
 	# Helper method called by the player script
