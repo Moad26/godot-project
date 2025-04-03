@@ -1,6 +1,8 @@
 extends CharacterBody2D
 class_name AIPlayer
 
+@onready var boss: Boss = $"../Boss"
+
 const SPEED = 100.0 #300
 const JUMP_VELOCITY = -400.0
 const DODGE_SPEED = 150.0 #500
@@ -23,6 +25,10 @@ var can_dodge := true
 var dodge_direction := 1.0  # Default to right if no input
 var current_health := MAX_HEALTH
 var is_invulnerable := false
+var took_damage_this_frame := false
+var successful_dodge_this_frame := false
+
+
 
 func _ready():
 	health_bar.max_value = MAX_HEALTH
@@ -44,7 +50,7 @@ func _physics_process(delta: float) -> void:
 		die()
 		return
 	# Get movement input
-	var direction := Input.get_axis("p2_left", "p2_right")
+	var direction := ai_controller.move
 	
 	# Update facing direction
 	if direction != 0:
@@ -74,6 +80,8 @@ func _physics_process(delta: float) -> void:
 	# Dodge/Roll logic
 	if ai_controller.dodge and not is_dodging and not is_attacking and can_dodge:
 		start_dodge()
+	if (position.distance_to(boss.position) < 30) and is_dodging:
+		successful_dodge_this_frame = true
 
 	move_and_slide()
 
@@ -138,4 +146,5 @@ func _on_hitarea_body_entered(body):
 	print("gotcha")
 	if body.has_method("take_damage") and body != self:
 		body.take_damage(ATTACK_DAMAGE, position)
+		took_damage_this_frame = true
 		

@@ -1,4 +1,5 @@
 extends CharacterBody2D
+class_name Boss
 
 const SPEED = 100.0
 const JUMP_VELOCITY = -400.0
@@ -19,6 +20,7 @@ var can_dodge := true
 var dodge_direction := 1.0  # Default to right if no input
 var current_health := MAX_HEALTH
 var is_invulnerable := false
+var hit_boss_this_frame := false
 
 func _ready():
 	health_bar.max_value = MAX_HEALTH
@@ -122,6 +124,7 @@ func take_damage(damage: int, attacker_position: Vector2):
 func _on_hitarea_body_entered(body):
 	if body.has_method("take_damage") and body != self:
 		body.take_damage(ATTACK_DAMAGE, position)
+		hit_boss_this_frame = true
 		
 func die():
 	queue_free()
