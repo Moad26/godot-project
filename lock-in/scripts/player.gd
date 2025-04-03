@@ -68,11 +68,11 @@ func _physics_process(delta: float) -> void:
 			start_run(direction)
 
 	# Attack logic
-	if Input.is_action_just_pressed("p2_attack") and not is_attacking and not is_dodging:
+	if ai_controller.attack and not is_attacking and not is_dodging:
 		start_attack()
 
 	# Dodge/Roll logic
-	if Input.is_action_just_pressed("p2_roll") and not is_dodging and not is_attacking and can_dodge:
+	if ai_controller.dodge and not is_dodging and not is_attacking and can_dodge:
 		start_dodge()
 
 	move_and_slide()
