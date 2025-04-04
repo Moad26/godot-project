@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://tglcvouvl03p" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_TurnAround.png" id="6_70d11"]
 [ext_resource type="Texture2D" uid="uid://bo7o3lk1b1cvj" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_Roll.png" id="7_cw2d6"]
 [ext_resource type="Texture2D" uid="uid://mnsg0on4eim2" path="res://FreeKnight_v1/Colour1/NoOutline/120x80_PNGSheets/_Death.png" id="7_khinc"]
-[ext_resource type="Script" uid="uid://c7kai7gbd86y4" path="res://addons/godot_rl_agents/controller/ai_controller_2d.gd" id="9_bruh7"]
+[ext_resource type="Script" uid="uid://bd1mquoyfn2df" path="res://scripts/ai_controller.gd" id="9_bruh7"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o4126"]
 atlas = ExtResource("1_mdl7e")
@@ -442,6 +442,10 @@ radius = 15.1327
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_qu4a1")
 
+[node name="AIController2D" type="Node2D" parent="."]
+script = ExtResource("9_bruh7")
+metadata/_custom_type_script = "uid://ftgt2rju6esk"
+
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(3, -42)
 sprite_frames = SubResource("SpriteFrames_o4126")
@@ -468,9 +472,5 @@ scale = Vector2(0.191864, 0.191864)
 position = Vector2(1, -16)
 shape = SubResource("CircleShape2D_khinc")
 debug_color = Color(0.988975, 0, 0.295862, 0.42)
-
-[node name="AIController2D" type="Node2D" parent="."]
-script = ExtResource("9_bruh7")
-metadata/_custom_type_script = "uid://c7kai7gbd86y4"
 
 [connection signal="body_entered" from="hitarea" to="." method="_on_hitarea_body_entered"]

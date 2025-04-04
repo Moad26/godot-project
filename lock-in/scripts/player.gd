@@ -17,7 +17,8 @@ const DODGE_INVULNERABILITY_DURATION = 0.5
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_hitbox: Area2D = $hitarea
 @onready var health_bar: ProgressBar = $HealthBar
-@onready var ai_controller: AIController2D = $AIController2D
+@onready var ai_controller: Node2D = $AIController2D
+
 
 var is_attacking := false
 var is_dodging := false
@@ -50,7 +51,7 @@ func _physics_process(delta: float) -> void:
 		die()
 		return
 	# Get movement input
-	var direction := ai_controller.move
+	var direction: float = ai_controller.move
 	
 	# Update facing direction
 	if direction != 0:
@@ -84,6 +85,9 @@ func _physics_process(delta: float) -> void:
 		successful_dodge_this_frame = true
 
 	move_and_slide()
+	took_damage_this_frame = false
+	successful_dodge_this_frame = false
+
 
 func start_run(direction):
 	animated_sprite.play("Run") 

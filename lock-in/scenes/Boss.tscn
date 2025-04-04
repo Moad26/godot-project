@@ -1,6 +1,6 @@
 [gd_scene load_steps=53 format=3 uid="uid://pnxi3upp6jyg"]
 
-[ext_resource type="Script" uid="uid://by5yp4i81i64v" path="res://scenes/boss.gd" id="1_6ig5k"]
+[ext_resource type="Script" uid="uid://by5yp4i81i64v" path="res://scripts/boss.gd" id="1_6ig5k"]
 [ext_resource type="Texture2D" uid="uid://bmh8odjj4hr34" path="res://Elementals_fire_knight_FREE_v1.1/Elementals_fire_knight_FREE_v1.1/spritesheets/fire_FREE_SpriteSheet_288x128.png" id="1_eynm2"]
 [ext_resource type="Texture2D" uid="uid://d3ocj4a3wvmwd" path="res://Elementals_fire_knight_FREE_v1.1/Elementals_fire_knight_FREE_v1.1/png/fire_knight/11_death/death_1.png" id="3_w701h"]
 [ext_resource type="Texture2D" uid="uid://dbvcfechtjtgh" path="res://Elementals_fire_knight_FREE_v1.1/Elementals_fire_knight_FREE_v1.1/png/fire_knight/11_death/death_2.png" id="4_678n3"]

@@ -1,89 +1,119 @@
 extends Node2D
 class_name AIController2D
 
-# Reference to the player character
-@onready var player: AIPlayer = $Player
-@onready var boss: Boss = $Boss
-var move: float
-var attack := false
-var dodge := false
+enum ControlModes { INHERIT_FROM_SYNC, HUMAN, TRAINING, ONNX_INFERENCE, RECORD_EXPERT_DEMOS }
+@export var control_mode: ControlModes = ControlModes.INHERIT_FROM_SYNC
+@export var onnx_model_path := ""
+@export var reset_after := 1000
+
+@export_group("Record expert demos mode options")
+## Path where the demos will be saved. The file can later be used for imitation learning.
+@export var expert_demo_save_path: String
+## The action that erases the last recorded episode from the currently recorded data.
+@export var remove_last_episode_key: InputEvent
+## Action will be repeated for n frames. Will introduce control lag if larger than 1.
+## Can be used to ensure that action_repeat on inference and training matches
+## the recorded demonstrations.
+@export var action_repeat: int = 1
+
+@export_group("Multi-policy mode options")
+## Allows you to set certain agents to use different policies.
+## Changing has no effect with default SB3 training. Works with Rllib example.
+## Tutorial: https://github.com/edbeeching/godot_rl_agents/blob/main/docs/TRAINING_MULTIPLE_POLICIES.md
+@export var policy_name: String = "shared_policy"
+
+var onnx_model: ONNXModel
+
+var heuristic := "human"
+var done := false
+var reward := 0.0
+var n_steps := 0
+var needs_reset := false
+
+var _player: Node2D
 
 
-func init(player_node: AIPlayer):
-	player = player_node
-	boss = get_tree().get_first_node_in_group("boss")  # Make sure your boss is in a "boss" group
+func _ready():
+	add_to_group("AGENT")
 
+
+func init(player: Node2D):
+	_player = player
+
+
+#-- Methods that need implementing using the "extend script" option in Godot --#
 func get_obs() -> Dictionary:
-	return {
-		"obs": [
-			player.position.distance_to(boss.position) / 500.0,
-			float(boss.current_health) / boss.MAX_HEALTH,
-			float(player.current_health) / player.MAX_HEALTH,
-			float(int(boss.is_attacking)),
-			float(int(boss.is_dodging)),
-			float(int(player.is_attacking)),
-			float(int(player.is_dodging)),
-		]
-	}
+	assert(false, "the get_obs method is not implemented when extending from ai_controller")
+	return {"obs": []}
 
-func get_action_space() -> Dictionary:
-	return {
-		"move": {"size": 1, "action_type": "continuous"},
-		"attack": {"size": 1, "action_type": "discrete"},
-		"dodge": {"size": 1, "action_type": "discrete"}
-	}
-
-func set_action(action):
-	move = action["move"][0]
-	if action["attack"][0] > 0.5:
-		attack = true
-	if action["dodge"][0] > 0.5:
-		dodge = true
-
-func process_movement(current_velocity: Vector2, delta: float) -> Vector2:
-	# Helper method called by the player script
-	return current_velocity
 
 func get_reward() -> float:
-	var reward := 0.0
-	
-	# Combat rewards
-	if boss.hit_boss_this_frame:
-		reward += 1.0  # Reward for successful hit
-		if boss.is_attacking:
-			reward += 0.5  # Bonus for hitting during boss attack (counter)
-	
-	# Defense rewards
-	if player.successful_dodge_this_frame:
-		reward += 0.7  # Reward for well-timed dodge
-		if boss.is_attacking:
-			reward += 0.3  # Bonus for dodging an actual attack
-	
-	# Survival penalties
-	if player.took_damage_this_frame:
-		reward -= 1.2  # Penalty for getting hit
-		if player.is_attacking:
-			reward -= 0.5  # Additional penalty for trading hits
-	
-	# Aggression bonus (encourage staying close)
-	var distance_norm = player.position.distance_to(boss.position) / 500.0
-	reward += 0.05 * (1.0 - distance_norm)  # Closer = better
-	
-	# Time penalty (encourage decisive actions)
-	reward -= 0.01
-	
-	# Death penalty
-	if player.current_health <= 0:
-		reward -= 5.0
-	
-	# Victory bonus
-	if boss.current_health <= 0:
-		reward += 10.0
-	
-	# Discourage spamming
-	if player.is_attacking:
-		reward -= 0.02  # Small penalty per attack frame
-	if player.is_dodging:
-		reward -= 0.01  # Tiny penalty per dodge frame
-	
-	return reward
+	assert(false, "the get_reward method is not implemented when extending from ai_controller")
+	return 0.0
+
+
+func get_action_space() -> Dictionary:
+	assert(
+		false,
+		"the get get_action_space method is not implemented when extending from ai_controller"
+	)
+	return {
+		"example_actions_continous": {"size": 2, "action_type": "continuous"},
+		"example_actions_discrete": {"size": 2, "action_type": "discrete"},
+	}
+
+
+func set_action(action) -> void:
+	assert(false, "the set_action method is not implemented when extending from ai_controller")
+
+
+#-----------------------------------------------------------------------------#
+
+
+#-- Methods that sometimes need implementing using the "extend script" option in Godot --#
+# Only needed if you are recording expert demos with this AIController
+func get_action() -> Array:
+	assert(false, "the get_action method is not implemented in extended AIController but demo_recorder is used")
+	return []
+
+# -----------------------------------------------------------------------------#
+
+func _physics_process(delta):
+	n_steps += 1
+	if n_steps > reset_after:
+		needs_reset = true
+
+
+func get_obs_space():
+	# may need overriding if the obs space is complex
+	var obs = get_obs()
+	return {
+		"obs": {"size": [len(obs["obs"])], "space": "box"},
+	}
+
+
+func reset():
+	n_steps = 0
+	needs_reset = false
+
+
+func reset_if_done():
+	if done:
+		reset()
+
+
+func set_heuristic(h):
+	# sets the heuristic from "human" or "model" nothing to change here
+	heuristic = h
+
+
+func get_done():
+	return done
+
+
+func set_done_false():
+	done = false
+
+
+func zero_reward():
+	reward = 0.0

@@ -26,6 +26,7 @@ func _ready():
 	health_bar.max_value = MAX_HEALTH
 	health_bar.value = current_health
 	hitarea.monitoring = false
+	add_to_group("boss")
 
 func _physics_process(delta: float) -> void:
 	if current_health <= 0:

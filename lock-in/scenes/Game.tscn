@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bk2cb2fi70x02" path="res://FreePlatformerNA/Foreground/Tileset.png" id="2_qbsmt"]
 [ext_resource type="PackedScene" uid="uid://pnxi3upp6jyg" path="res://scenes/Boss.tscn" id="3_cpr0p"]
 [ext_resource type="Texture2D" uid="uid://ct3upgjjyg81c" path="res://pixel-art-sky-background-with-clouds-cloudy-blue-sky-for-8bit-game-on-white-background-vector.jpg" id="4_78awf"]
-[ext_resource type="Script" uid="uid://djwcwk43t7u1k" path="res://addons/godot_rl_agents/sync.gd" id="5_s0nni"]
+[ext_resource type="Script" uid="uid://2wsm0vvlj30o" path="res://addons/godot_rl_agents/sync.gd" id="5_s0nni"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cpr0p"]
 texture = ExtResource("2_qbsmt")
@@ -130,4 +130,3 @@ shape = SubResource("RectangleShape2D_78awf")
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("5_s0nni")
-metadata/_custom_type_script = "uid://djwcwk43t7u1k"
