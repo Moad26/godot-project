@@ -93,7 +93,7 @@ size = Vector2(20, 194)
 [node name="Game" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_ibkli")]
-position = Vector2(5, 69)
+position = Vector2(-116, 64)
 
 [node name="Boss" parent="." instance=ExtResource("3_cpr0p")]
 position = Vector2(83, 78)

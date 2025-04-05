@@ -6,7 +6,7 @@ var attack := false
 var dodge := false
 
 @onready var player: AIPlayer = get_parent() as AIPlayer
-@onready var boss: Boss = get_node("Boss") as Boss
+@onready var boss: Boss = get_node("/root/Game/Boss") as Boss
 
 
 
@@ -41,46 +41,70 @@ func get_reward() -> float:
 	if boss == null:
 		print("Boss is not assigned!")
 		return reward
+	
+	if player == null:
+		print("Boss is not assigned!")
+		return reward
+		
+	var optimal_range = 50.0  # Reduced from 150 for melee focus
+	var current_dist = player.position.distance_to(boss.position)
+	
+	# Continuous position reward (more aggressive curve)
+	var position_reward = 1.0 - clamp(current_dist/optimal_range, 0.0, 1.0)
+	reward += 15.0 * pow(position_reward, 2)  # Quadratic scaling
+	print("Position: %.1fpx (Score: +%.1f)" % [current_dist, 15.0 * pow(position_reward, 2)])
 
 	# Combat rewards
+	# --- Combat Phase Rewards ---
 	if boss.hit_boss_this_frame:
-		reward += 1.0  # Reward for successful hit
+		var base_reward = 20.0
 		if boss.is_attacking:
-			reward += 0.5  # Bonus for hitting during boss attack (counter)
+			base_reward *= 1.5  # Counter-attack bonus
+		reward += base_reward
+		print("Hit: +%.1f" % base_reward)
 
 	# Defense rewards
 	if player.successful_dodge_this_frame:
-		reward += 0.7  # Reward for well-timed dodge
 		if boss.is_attacking:
-			reward += 0.3  # Bonus for dodging an actual attack
+			var dodge_reward = 15.0  # Perfect dodge reward
+			reward += dodge_reward
+			print("Perfect dodge: +", dodge_reward)
+		else:
+			reward -= 10.0  # Stronger penalty for unnecessary dodges
+			print("Wasted dodge: -7.0")
 
 	# Survival penalties
+	# --- Damage Penalties ---
 	if player.took_damage_this_frame:
-		reward -= 1.2  # Penalty for getting hit
+		var damage_penalty = -25.0
 		if player.is_attacking:
-			reward -= 0.5  # Additional penalty for trading hits
+			damage_penalty *= 1.2  # Extra penalty for reckless attacks
+		reward += damage_penalty
+		print("Damage taken: ", damage_penalty)
+		
 
-	# Aggression bonus (encourage staying close)
-	var distance_norm = player.position.distance_to(boss.position) / 500.0
-	reward += 0.05 * (1.0 - distance_norm)  # Closer = better
+	# --- Action Economy ---
+	if player.is_attacking:
+		print("random attack")
+		reward -= 5.0 * (1.0 - position_reward)  # Worse penalty when attacking from bad positions
+		
+	if player.is_dodging:
+		print("random dodge")
+		reward -= 8.0 * (1.0 - position_reward)
+
 
 	# Time penalty (encourage decisive actions)
-	reward -= 0.01
+	reward -= 10.0
 
 	# Death penalty
 	if player.current_health <= 0:
-		reward -= 5.0
+		reward -= 50.0
 
 	# Victory bonus
 	if boss.current_health <= 0:
-		reward += 10.0
+		reward += 100.0
 
-	# Discourage spamming
-	if player.is_attacking:
-		reward -= 0.02  # Small penalty per attack frame
-	if player.is_dodging:
-		reward -= 0.01  # Tiny penalty per dodge frame
-
+	print("Total reward: ", reward)
 	return reward
 
 func reset() -> void:

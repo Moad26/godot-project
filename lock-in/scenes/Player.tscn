@@ -436,8 +436,8 @@ animations = [{
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_cw2d6"]
 radius = 7.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_khinc"]
-radius = 15.1327
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bruh7"]
+size = Vector2(29, 30)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_qu4a1")
@@ -469,8 +469,8 @@ scale = Vector2(0.191864, 0.191864)
 [node name="hitarea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="hitarea"]
-position = Vector2(1, -16)
-shape = SubResource("CircleShape2D_khinc")
+position = Vector2(26, -16)
+shape = SubResource("RectangleShape2D_bruh7")
 debug_color = Color(0.988975, 0, 0.295862, 0.42)
 
 [connection signal="body_entered" from="hitarea" to="." method="_on_hitarea_body_entered"]

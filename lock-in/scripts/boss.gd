@@ -128,4 +128,7 @@ func _on_hitarea_body_entered(body):
 		hit_boss_this_frame = true
 		
 func die():
-	queue_free()
+	#queue_free()
+	set_physics_process(true)
+	position = Vector2(82, 55)
+	current_health = MAX_HEALTH

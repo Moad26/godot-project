@@ -143,7 +143,10 @@ func take_damage(damage: int, attacker_position: Vector2):
 	await get_tree().create_timer(0.1).timeout
 	modulate = Color.WHITE
 func die():
-	$".".queue_free()
+	#$".".queue_free()
+	set_physics_process(true)
+	position = Vector2(-116, 50)
+	current_health = MAX_HEALTH
 
 
 func _on_hitarea_body_entered(body):
