@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://vdiylahi44nv"]
+
+[ext_resource type="Shader" uid="uid://bofdk807tvn6e" path="res://crt.gdshader" id="1_c4rma"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ghj5q"]
+shader = ExtResource("1_c4rma")
+shader_parameter/resolution = Vector2(320, 180)
+shader_parameter/scan_line_amount = 0.2
+shader_parameter/warp_amount = 0.1
+shader_parameter/vignette_amount = 0.8
+shader_parameter/vignette_intensity = 0.3
+shader_parameter/grille_amount = 0.05
+shader_parameter/brightness_boost = 1.2
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_ghj5q")
+offset_right = 1152.0
+offset_bottom = 648.0
