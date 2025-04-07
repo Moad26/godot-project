@@ -24,6 +24,8 @@ func get_obs() -> Dictionary:
 			float(int(player.successful_dodge_this_frame)),
 			float(int(player.took_damage_this_frame)),
 			float(int(player.is_close_to_boss)),
+			clamp(player.last_attack_time / player.ATTACK_COOLDOWN, 0.0, 1.0),  # Attack cooldown progress
+			clamp(player.last_dodge_time / player.DODGE_COOLDOWN, 0.0, 1.0),   # Dodge cooldown progress
 		]
 	}
 
@@ -36,70 +38,59 @@ func get_action_space() -> Dictionary:
 
 func set_action(action):
 	move = action["move"][0]
-	attack = (action["attack"] > 0.5)
-	dodge = (action["dodge"] > 0.5)
+	attack = (action["attack"] > 0.7) and player.last_attack_time >= player.ATTACK_COOLDOWN
+	dodge = (action["dodge"] > 0.7) and player.last_dodge_time >= player.DODGE_COOLDOWN
+	
+	if attack:
+		player.last_attack_time = 0.0
+	if dodge:
+		player.last_dodge_time = 0.0
 
 func get_reward() -> float:
 	var reward := 0.0
 	
-	# Safety checks
 	if boss == null or player == null:
 		push_error("Cannot calculate reward: Boss or Player is null")
 		return 0.0
 		
-	var optimal_range = 50.0  # Reduced from 150 for melee focus
+	var optimal_range = 50.0
 	var current_dist = player.position.distance_to(boss.position)
-	
-	# Continuous position reward (more aggressive curve)
 	var position_reward = 1.0 - clamp(current_dist/optimal_range, 0.0, 1.0)
-	reward += 15.0 * pow(position_reward, 2)  # Quadratic scaling
 	
-	# Combat rewards
-	# --- Combat Phase Rewards ---
+	# --- Combat Rewards ---
 	if boss.hit_boss_this_frame:
 		var base_reward = 20.0
 		if boss.is_attacking:
 			base_reward *= 1.5  # Counter-attack bonus
 		reward += base_reward
-		boss.hit_boss_this_frame = false  # Reset flag after processing
+		boss.hit_boss_this_frame = false
 	
-	# Sticking close to boss reward
-	if player.is_close_to_boss:
-		reward += 0.1
-	
-	# Defense rewards
+	# --- Defense Rewards ---
 	if player.successful_dodge_this_frame:
 		if boss.is_attacking:
-			var dodge_reward = 15.0  # Perfect dodge reward
-			reward += dodge_reward
+			reward += 15.0  # Reward dodging attacks
 		else:
-			reward -= 10.0  # Stronger penalty for unnecessary dodges
+			reward -= 20.0  # Penalize unnecessary dodges (higher penalty)
 	
-	# Survival penalties
+	# --- Attack Penalties ---
+	if player.is_attacking:
+		if current_dist > optimal_range:
+			reward -= 15.0  # Penalize attacking from too far
+		else:
+			reward += 5.0  # Small reward for attacking in range
+	
 	# --- Damage Penalties ---
 	if player.took_damage_this_frame:
-		var damage_penalty = -25.0
-		if player.is_attacking:
-			damage_penalty *= 1.2  # Extra penalty for reckless attacks
-		reward += damage_penalty
+		reward -= 30.0  # Strong penalty for getting hit
 	
-	# --- Action Economy ---
-	if player.is_attacking:
-		reward -= 5.0 * (1.0 - position_reward)  # Worse penalty when attacking from bad positions
-		
-	if player.is_dodging:
-		reward -= 8.0 * (1.0 - position_reward)
+	# --- Time Penalty (Encourage Decisiveness) ---
+	reward -= 0.2
 	
-	# Time penalty (encourage decisive actions)
-	reward -= 0.1
-	
-	# Death penalty
+	# --- Death/Victory Conditions ---
 	if player.current_health <= 0:
-		reward -= 50.0
-	
-	# Victory bonus
+		reward -= 100.0
 	if boss.current_health <= 0:
-		reward += 100.0
+		reward += 150.0
 	
 	return reward
 

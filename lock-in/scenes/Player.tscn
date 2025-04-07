@@ -307,7 +307,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"Idle",
-"speed": 7.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -459,9 +459,9 @@ metadata/_custom_type_script = "uid://ftgt2rju6esk"
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(3, -42)
 sprite_frames = SubResource("SpriteFrames_o4126")
-animation = &"Attack2"
+animation = &"roll"
 autoplay = "Idle"
-frame = 3
+frame = 11
 frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

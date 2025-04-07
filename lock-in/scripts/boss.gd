@@ -28,6 +28,8 @@ var hit_boss_this_frame := false
 var can_flip := true
 
 func _ready():
+	animated_sprite.animation_finished.connect(_on_animation_finished)
+	animated_sprite.frame_changed.connect(_on_frame_changed)
 	health_bar.max_value = MAX_HEALTH
 	health_bar.value = current_health
 	healthbar.init_health(current_health)
@@ -96,7 +98,7 @@ func start_dodge():
 	animated_sprite.play("roll")
 	
 	# Make boss invulnerable during dodge
-	is_invulnerable = true
+	#is_invulnerable = true
 	
 	# Wait for dodge to complete
 	await get_tree().create_timer(DODGE_DURATION).timeout
@@ -161,11 +163,28 @@ func _on_hitarea_body_entered(body):
 		camera.start_shake(5)
 		
 func die():
+	# Immediately disable everything
 	set_physics_process(false)
+	hitarea.monitoring = false
+	is_attacking = false
+	is_dodging = false
+	
+	# Play death animation and wait
 	animated_sprite.play("death")
 	await animated_sprite.animation_finished
-	set_physics_process(true)
-	position = Vector2(85, 83)
+	
+	# Reset boss stats
+	position = Vector2(85, 83)  # Boss respawn position
 	current_health = MAX_HEALTH
 	health_bar.value = current_health
 	healthbar.health = current_health
+	
+	# Re-enable physics
+	set_physics_process(true)
+
+func _on_frame_changed():
+	if animated_sprite.animation == "attack" and animated_sprite.frame == 5: # Adjust frame
+		hitarea.monitoring = true
+
+func _on_animation_finished():
+	hitarea.monitoring = false 

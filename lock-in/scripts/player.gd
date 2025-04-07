@@ -38,6 +38,8 @@ const ATTACK_COOLDOWN = 0.8  # Minimum time between attacks
 const DODGE_COOLDOWN = 1.2   # Minimum time between dodges
 
 func _ready():
+	animated_sprite.animation_finished.connect(_on_animation_finished)
+	animated_sprite.frame_changed.connect(_on_frame_changed)
 	health_bar.max_value = MAX_HEALTH
 	health_bar.value = current_health
 	healthbar.init_health(current_health)
@@ -45,10 +47,12 @@ func _ready():
 	ai_controller.init(self)
 
 func _physics_process(delta: float) -> void:
+	last_attack_time += delta
+	last_dodge_time += delta
 	# Handle collision layers based on dodge state
 	if is_dodging:
 		$".".collision_layer = 2
-		$".".collision_mask = 4
+		$".".collision_mask = 5
 	else:
 		$".".collision_layer = 1
 		$".".collision_mask = 1
@@ -174,11 +178,22 @@ func take_damage(damage: int, attacker_position: Vector2):
 	await animated_sprite.animation_finished  # Wait for hit animation to complete
 
 func die():
-	set_physics_process(true)
-	position = Vector2(-113, 82)
+	set_physics_process(false)
+	attack_hitbox.monitoring = false
+	is_attacking = false
+	is_dodging = false
+	
+	# Play death animation and wait
+	animated_sprite.play("death")
+	await animated_sprite.animation_finished
+	
+	# Reset player stats
+	position = Vector2(-113, 82)  # Player respawn position
 	current_health = MAX_HEALTH
 	health_bar.value = current_health
 	healthbar.health = current_health
+
+	set_physics_process(true)
 
 func _on_hitarea_body_entered(body):
 	if body.has_method("take_damage") and body != self:
@@ -195,3 +210,10 @@ func _on_looker_body_entered(body):
 func _on_looker_body_exited(body):
 	if body.has_method("take_damage") and body != self:
 		is_close_to_boss = false
+
+func _on_frame_changed():
+	if animated_sprite.animation == "attack" and animated_sprite.frame == 2: # Adjust frame
+		attack_hitbox.monitoring = true  # Activate hitbox on specific frame
+
+func _on_animation_finished():
+	attack_hitbox.monitoring = false 
