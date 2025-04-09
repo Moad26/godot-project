@@ -59,9 +59,6 @@ func _physics_process(delta: float) -> void:
 		
 	# Death handling
 	if current_health <= 0:
-		set_physics_process(false)
-		animated_sprite.play("death")
-		await animated_sprite.animation_finished
 		die()
 		return
 		
